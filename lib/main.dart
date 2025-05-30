@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:notes/controllers/notescontroller.dart';
 import 'package:notes/view/screens/homepage.dart';
 import 'package:notes/utilities/themes.dart';
 import 'package:provider/provider.dart';
@@ -22,19 +23,22 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
-    return MaterialApp(
-      localizationsDelegates: const [
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-    FlutterQuillLocalizations.delegate,
-  ],
-      title: 'Notionary',
-      debugShowCheckedModeBanner: false,
-      themeMode: themeProvider.themeMode,
-      theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
-      home: const HomePage(),
+    return ChangeNotifierProvider(
+      create: (BuildContext context) => NotesController(),
+      child: MaterialApp(
+        localizationsDelegates: const [
+      GlobalMaterialLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      FlutterQuillLocalizations.delegate,
+        ],
+        title: 'Notionary',
+        debugShowCheckedModeBanner: false,
+        themeMode: themeProvider.themeMode,
+        theme: AppTheme.light,
+        darkTheme: AppTheme.dark,
+        home: const HomePage(),
+      ),
     );
   }
 }

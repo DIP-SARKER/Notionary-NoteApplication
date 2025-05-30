@@ -2,9 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:lottie/lottie.dart';
+import 'package:notes/controllers/notescontroller.dart';
 import 'package:notes/models/notesmodel.dart';
 import 'package:notes/view/screens/createoreditpage.dart';
 import 'package:notes/view/widgets/floatinbutton.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,9 +18,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedCategory = 0;
-
-  final List<Note> _notes = Note.notes;
-
   final List<String> _categories = [
     'All',
     'Personal',
@@ -78,104 +78,119 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Search Bar
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Iconsax.search_normal, color: Colors.black),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextField(
-                      decoration: InputDecoration(
-                        fillColor: Colors.grey[200],
-                        hintStyle: TextStyle(color: Colors.grey[600]),
-                        hintText: 'Search notes...',
-                        border: InputBorder.none,
-                      ),
-                      onChanged: (value) {
-                        // Implement search functionality
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Categories
-            SizedBox(
-              height: 40,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: _categories.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 16),
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedCategory = index;
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color:
-                              _selectedCategory == index
-                                  ? Theme.of(context).primaryColor
-                                  : Colors.grey[200],
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text(
-                          _categories[index],
-                          style: TextStyle(
-                            color:
-                                _selectedCategory == index
-                                    ? Colors.white
-                                    : Colors.black,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Notes Grid
-            Expanded(
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 16,
-                  crossAxisSpacing: 16,
-                  childAspectRatio: 0.8,
+      body: Consumer<NotesController>(
+        builder: (BuildContext context, NotesController value, child) {
+          final List<Note> notes = value.notes;
+          return notes.isEmpty
+              ? NoNotes()
+              : Padding(
+                padding: const EdgeInsets.only(
+                  left: 16.0,
+                  right: 16.0,
+                  top: 16.0,
                 ),
-                itemCount: _notes.length,
-                itemBuilder: (context, index) {
-                  return _buildNoteCard(_notes[index]);
-                },
-              ),
-            ),
-          ],
-        ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Search Bar
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Iconsax.search_normal,
+                            color: Colors.black,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: TextField(
+                              decoration: InputDecoration(
+                                fillColor: Colors.grey[200],
+                                hintStyle: TextStyle(color: Colors.grey[600]),
+                                hintText: 'Search notes...',
+                                border: InputBorder.none,
+                              ),
+                              onChanged: (value) {
+                                // Implement search functionality
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Categories
+                    SizedBox(
+                      height: 40,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _categories.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 16),
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _selectedCategory = index;
+                                });
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color:
+                                      _selectedCategory == index
+                                          ? Theme.of(context).primaryColor
+                                          : Colors.grey[200],
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Text(
+                                  _categories[index],
+                                  style: TextStyle(
+                                    color:
+                                        _selectedCategory == index
+                                            ? Colors.white
+                                            : Colors.black,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Notes Grid
+                    Expanded(
+                      child: GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              mainAxisSpacing: 16,
+                              crossAxisSpacing: 16,
+                              childAspectRatio: 0.8,
+                            ),
+                        itemCount: notes.length,
+                        itemBuilder: (context, index) {
+                          return _buildNoteCard(notes[index]);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              );
+        },
       ),
       floatingActionButton: HomeFab(
         onPressed: () {
@@ -211,19 +226,21 @@ class _HomePageState extends State<HomePage> {
                       flex: 3,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
+                          horizontal: 7,
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.7),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Text(
-                          note.category,
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                        child: Center(
+                          child: Text(
+                            note.category,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),
@@ -258,7 +275,7 @@ class _HomePageState extends State<HomePage> {
           ),
           const Spacer(),
           Text(
-            note.date,
+            note.createdAt,
             style: TextStyle(fontSize: 12, color: Colors.grey[600]),
           ),
         ],
@@ -324,6 +341,26 @@ class _HomePageState extends State<HomePage> {
           ),
         );
       },
+    );
+  }
+}
+
+class NoNotes extends StatelessWidget {
+  const NoNotes({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Lottie.asset('assets/jsons/animation.json'),
+        Text(
+          'No notes available',
+          style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+        ),
+      ],
     );
   }
 }

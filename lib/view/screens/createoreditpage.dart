@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
+import 'package:notes/view/screens/splashscreen.dart';
 import 'package:notes/view/widgets/notestoolbar.dart';
 
 class Createoreditpage extends StatefulWidget {
@@ -43,8 +44,11 @@ class _CreateoreditpageState extends State<Createoreditpage> {
           IconButton(
             icon: const Icon(Iconsax.direct),
             onPressed: () {
-              // Save note logic here
-              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Splashscreen()),
+              );
+              // Navigator.pop(context);
             },
           ),
         ],
