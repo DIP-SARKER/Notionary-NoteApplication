@@ -2,11 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
+import 'package:notes/controllers/newnotescontroller.dart';
 import 'package:notes/controllers/notescontroller.dart';
 import 'package:notes/models/notesmodel.dart';
 import 'package:notes/view/screens/createoreditpage.dart';
 import 'package:notes/view/widgets/floatinbutton.dart';
+import 'package:notes/view/widgets/notesdrawer.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -25,11 +28,11 @@ class _HomePageState extends State<HomePage> {
     'Ideas',
     'To-Do',
   ];
-  final Map<String, Color> categoryColors = {
+  Map<String, Color> colorMap = {
     'Personal': Colors.green.shade300,
     'Work': Colors.blue.shade400,
-    'Ideas': Colors.amber.shade700,
-    'To-Do': Colors.teal.shade300,
+    'Ideas': Colors.teal.shade300,
+    'To-Do': Colors.amber.shade700,
   };
 
   @override
@@ -46,38 +49,7 @@ class _HomePageState extends State<HomePage> {
         ),
         centerTitle: true,
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(color: Theme.of(context).primaryColor),
-              child: const Text(
-                'Menu',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Iconsax.setting_2),
-              title: const Text('Settings'),
-              onTap: () {
-                // Navigate to settings
-              },
-            ),
-            ListTile(
-              leading: const Icon(Iconsax.info_circle),
-              title: const Text('About'),
-              onTap: () {
-                // Navigate to about page
-              },
-            ),
-          ],
-        ),
-      ),
+      drawer: NotesDrawer(),
       body: Consumer<NotesController>(
         builder: (BuildContext context, NotesController value, child) {
           final List<Note> notes = value.notes;
@@ -197,7 +169,11 @@ class _HomePageState extends State<HomePage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const Createoreditpage(isNewNote: true),
+              builder:
+                  (context) => ChangeNotifierProvider(
+                    create: (BuildContext context) => NewNoteController(),
+                    child: const Createoreditpage(isNewNote: true),
+                  ),
             ),
           );
         },
@@ -208,7 +184,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildNoteCard(Note note) {
     return Container(
       decoration: BoxDecoration(
-        color: categoryColors[note.category] ?? Colors.white,
+        color: colorMap[note.category] ?? Colors.grey[300],
         borderRadius: BorderRadius.circular(20),
       ),
       padding: const EdgeInsets.all(16),
@@ -216,7 +192,6 @@ class _HomePageState extends State<HomePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
                 flex: 5,
@@ -268,14 +243,16 @@ class _HomePageState extends State<HomePage> {
           ),
           const SizedBox(height: 8),
           Text(
-            note.content,
+            note.text,
             style: TextStyle(fontSize: 14, color: Colors.grey[800]),
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
           ),
           const Spacer(),
           Text(
-            note.createdAt,
+            DateFormat(
+              'MMM dd, yyyy – hh:mm a',
+            ).format(DateTime.parse(note.createdAt)),
             style: TextStyle(fontSize: 12, color: Colors.grey[600]),
           ),
         ],
@@ -346,9 +323,7 @@ class _HomePageState extends State<HomePage> {
 }
 
 class NoNotes extends StatelessWidget {
-  const NoNotes({
-    super.key,
-  });
+  const NoNotes({super.key});
 
   @override
   Widget build(BuildContext context) {

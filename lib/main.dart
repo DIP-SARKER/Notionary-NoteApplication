@@ -5,7 +5,7 @@ import 'package:notes/view/screens/homepage.dart';
 import 'package:notes/utilities/themes.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-
+//android-arm64
 
 void main() {
   runApp(
@@ -27,10 +27,10 @@ class MyApp extends StatelessWidget {
       create: (BuildContext context) => NotesController(),
       child: MaterialApp(
         localizationsDelegates: const [
-      GlobalMaterialLocalizations.delegate,
-      GlobalCupertinoLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate,
-      FlutterQuillLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          FlutterQuillLocalizations.delegate,
         ],
         title: 'Notionary',
         debugShowCheckedModeBanner: false,
