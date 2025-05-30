@@ -1,15 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
+import 'package:notes/view/widgets/notestoolbar.dart';
 
 class Createoreditpage extends StatefulWidget {
-  const Createoreditpage({super.key});
+  const Createoreditpage({super.key, required this.isNewNote});
+  final bool isNewNote;
 
   @override
   State<Createoreditpage> createState() => _CreateoreditpageState();
 }
 
 class _CreateoreditpageState extends State<Createoreditpage> {
+  late final quill.QuillController _controller = quill.QuillController.basic();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   String formatDateTime([DateTime? dateTime]) {
     DateTime dt = (dateTime ?? DateTime.now()).toLocal();
     return DateFormat('dd MMMM yyyy, hh:mm a').format(dt);
@@ -19,8 +30,8 @@ class _CreateoreditpageState extends State<Createoreditpage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Edit Note',
+        title: Text(
+          widget.isNewNote ? 'Create Note' : 'Edit Note',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -30,14 +41,7 @@ class _CreateoreditpageState extends State<Createoreditpage> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit, color: Colors.black),
-            onPressed: () {
-              // Save note logic here
-              Navigator.pop(context);
-            },
-          ),
-          IconButton(
-            icon: const Icon(Iconsax.save_2, color: Colors.black),
+            icon: const Icon(Iconsax.direct),
             onPressed: () {
               // Save note logic here
               Navigator.pop(context);
@@ -46,7 +50,7 @@ class _CreateoreditpageState extends State<Createoreditpage> {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(10.0),
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
         child: Column(
           children: [
             TextField(
@@ -59,78 +63,112 @@ class _CreateoreditpageState extends State<Createoreditpage> {
               ),
             ),
             const Divider(),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12.0,
-                vertical: 2,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            if (!widget.isNewNote)
+              Column(
                 children: [
-                  Text(
-                    "Last Modified",
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 5,
+                          child: Text(
+                            "Last Modified",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 5,
+                          child: Text(
+                            formatDateTime(),
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Text(formatDateTime(), style: const TextStyle(fontSize: 16)),
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 5,
+                          child: Text(
+                            "Created On",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 5,
+                          child: Text(
+                            formatDateTime(
+                              DateTime.now().subtract(
+                                const Duration(days: 5, hours: 3, minutes: 27),
+                              ),
+                            ),
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12.0,
-                vertical: 2,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Created",
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                  Text(
-                    formatDateTime(
-                      DateTime.now().subtract(
-                        const Duration(days: 5, hours: 3, minutes: 27),
-                      ),
-                    ),
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                ],
-              ),
-            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    "Category",
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                  Expanded(
+                    flex: 5,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Category",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        SizedBox(width: 4),
+
+                        IconButton(
+                          onPressed: () {},
+                          icon: Icon(Iconsax.add_square, size: 16),
+                          padding: EdgeInsets.zero,
+                          constraints: BoxConstraints(),
+                        ),
+                      ],
                     ),
                   ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: Icon(Iconsax.add_square, size: 16),
+                  Expanded(
+                    flex: 5,
+                    child: Text(
+                      "Personal",
+                      style: const TextStyle(fontSize: 16),
+                    ),
                   ),
-                  const SizedBox(width: 150),
-                  Text("General", style: const TextStyle(fontSize: 16)),
                 ],
               ),
             ),
-            TextField(
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              decoration: InputDecoration(
-                hintText: 'Notes Description Goes Here......',
-                border: InputBorder.none,
-                fillColor: Colors.transparent,
+            NotesToolBar(controller: _controller),
+            const Divider(thickness: 1, color: Colors.grey),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: quill.QuillEditor.basic(
+                  controller: _controller,
+                  config: const quill.QuillEditorConfig(
+                    placeholder: 'Start writing your note...',
+                  ),
+                ),
               ),
             ),
           ],
