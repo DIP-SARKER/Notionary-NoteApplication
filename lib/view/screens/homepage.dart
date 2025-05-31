@@ -172,7 +172,10 @@ class _HomePageState extends State<HomePage> {
               builder:
                   (context) => ChangeNotifierProvider(
                     create: (BuildContext context) => NewNoteController(),
-                    child: const Createoreditpage(isNewNote: true),
+                    child: const Createoreditpage(
+                      isNewNote: true,
+                      readOnly: false,
+                    ),
                   ),
             ),
           );
@@ -275,17 +278,17 @@ class _HomePageState extends State<HomePage> {
                 leading: const Icon(Iconsax.book_saved),
                 title: const Text('Open'),
                 onTap: () {
-                  // Navigator.pop(context);
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (context) => Createoreditpage(
-                  //       isNewNote: false,
-                  //       note: note,
-                  //       readOnly: true,
-                  //     ),
-                  //   ),
-                  // );
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder:
+                          (context) => const Createoreditpage(
+                            isNewNote: false,
+                            readOnly: true,
+                          ),
+                    ),
+                  );
                 },
               ),
               const Divider(),
@@ -298,7 +301,10 @@ class _HomePageState extends State<HomePage> {
                     context,
                     MaterialPageRoute(
                       builder:
-                          (context) => const Createoreditpage(isNewNote: false),
+                          (context) => const Createoreditpage(
+                            isNewNote: false,
+                            readOnly: false,
+                          ),
                     ),
                   );
                 },

@@ -7,8 +7,13 @@ import 'package:notes/view/widgets/notestoolbar.dart';
 import 'package:provider/provider.dart';
 
 class Createoreditpage extends StatefulWidget {
-  const Createoreditpage({super.key, required this.isNewNote});
+  const Createoreditpage({
+    super.key,
+    required this.isNewNote,
+    required this.readOnly,
+  });
   final bool isNewNote;
+  final bool readOnly;
 
   @override
   State<Createoreditpage> createState() => _CreateoreditpageState();
@@ -34,15 +39,7 @@ class _CreateoreditpageState extends State<Createoreditpage> {
         quill.QuillController.basic()..addListener(() {
           newNoteController.content = _controller.document;
         });
-    // WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-    //   // if (widget.isNewNote) {
-    //   //   focusNode.requestFocus();
-    //   //   newNoteController.readOnly = false;
-    //   // } else {
-    //   //   newNoteController.readOnly = true;
-    //   //   quillController.document = newNoteController.content;
-    //   // }
-    // });
+    _controller.readOnly = widget.readOnly;
   }
 
   @override
@@ -73,6 +70,18 @@ class _CreateoreditpageState extends State<Createoreditpage> {
         ),
         centerTitle: true,
         actions: [
+          IconButton(
+            icon:
+                _controller.readOnly
+                    ? Icon(Iconsax.receipt_edit)
+                    : Icon(Iconsax.book_saved),
+            onPressed: () {
+              setState(() {
+                _controller.readOnly = !_controller.readOnly;
+              });
+            },
+          ),
+
           Selector<NewNoteController, bool>(
             selector: (_, newNoteController) => newNoteController.canSaveNote,
             builder:
@@ -100,6 +109,7 @@ class _CreateoreditpageState extends State<Createoreditpage> {
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
+                  canRequestFocus: !_controller.readOnly,
                   decoration: InputDecoration(
                     hintText: 'Title',
                     hintStyle: TextStyle(color: Colors.grey[600]),
@@ -217,7 +227,8 @@ class _CreateoreditpageState extends State<Createoreditpage> {
                     ],
                   ),
                 ),
-                NotesToolBar(controller: _controller),
+                if (!_controller.readOnly)
+                  NotesToolBar(controller: _controller),
                 const Divider(thickness: 1, color: Colors.grey),
                 Expanded(
                   child: Padding(
