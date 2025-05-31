@@ -2,11 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:notes/controllers/newnotescontroller.dart';
 import 'package:notes/controllers/notescontroller.dart';
 import 'package:notes/models/notesmodel.dart';
+import 'package:notes/utilities/dateformator.dart';
 import 'package:notes/view/screens/createoreditpage.dart';
 import 'package:notes/view/widgets/floatinbutton.dart';
 import 'package:notes/view/widgets/notesdrawer.dart';
@@ -155,7 +155,27 @@ class _HomePageState extends State<HomePage> {
                             ),
                         itemCount: notes.length,
                         itemBuilder: (context, index) {
-                          return _buildNoteCard(notes[index]);
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => ChangeNotifierProvider(
+                                        create:
+                                            (BuildContext context) =>
+                                                NewNoteController()
+                                                  ..note = notes[index],
+                                        child: const Createoreditpage(
+                                          isNewNote: false,
+                                          readOnly: true,
+                                        ),
+                                      ),
+                                ),
+                              );
+                            },
+                            child: _buildNoteCard(notes[index]),
+                          );
                         },
                       ),
                     ),
@@ -190,9 +210,10 @@ class _HomePageState extends State<HomePage> {
         color: colorMap[note.category] ?? Colors.grey[300],
         borderRadius: BorderRadius.circular(20),
       ),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: [
@@ -231,8 +252,9 @@ class _HomePageState extends State<HomePage> {
                 flex: 1,
                 child: IconButton(
                   onPressed: () {
-                    viewOptions();
+                    viewOptions(note);
                   },
+                  padding: EdgeInsets.zero,
                   icon: const Icon(Iconsax.more, size: 20, color: Colors.black),
                 ),
               ),
@@ -240,30 +262,28 @@ class _HomePageState extends State<HomePage> {
           ),
           Text(
             note.title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 8),
           Text(
             note.text,
-            style: TextStyle(fontSize: 14, color: Colors.grey[800]),
+            style: TextStyle(fontSize: 15, color: Colors.grey[900]),
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
           ),
           const Spacer(),
           Text(
-            DateFormat(
-              'MMM dd, yyyy – hh:mm a',
-            ).format(DateTime.parse(note.createdAt)),
-            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            formatDateTime(note.createdAt),
+            style: TextStyle(fontSize: 12, color: Colors.grey[700]),
           ),
         ],
       ),
     );
   }
 
-  Future<dynamic> viewOptions() {
+  Future<dynamic> viewOptions(Note note) {
     return showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -279,16 +299,6 @@ class _HomePageState extends State<HomePage> {
                 title: const Text('Open'),
                 onTap: () {
                   Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (context) => const Createoreditpage(
-                            isNewNote: false,
-                            readOnly: true,
-                          ),
-                    ),
-                  );
                 },
               ),
               const Divider(),
@@ -301,9 +311,14 @@ class _HomePageState extends State<HomePage> {
                     context,
                     MaterialPageRoute(
                       builder:
-                          (context) => const Createoreditpage(
-                            isNewNote: false,
-                            readOnly: false,
+                          (context) => ChangeNotifierProvider(
+                            create:
+                                (BuildContext context) =>
+                                    NewNoteController()..note = note,
+                            child: const Createoreditpage(
+                              isNewNote: false,
+                              readOnly: false,
+                            ),
                           ),
                     ),
                   );
@@ -314,10 +329,11 @@ class _HomePageState extends State<HomePage> {
                 leading: const Icon(Iconsax.trash),
                 title: const Text('Delete'),
                 onTap: () {
-                  // setState(() {
-                  //   _notes.remove(note);
-                  // });
-                  // Navigator.pop(context);
+                  Provider.of<NotesController>(
+                    context,
+                    listen: false,
+                  ).removeNote(note);
+                  Navigator.pop(context);
                 },
               ),
             ],
@@ -334,8 +350,8 @@ class NoNotes extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        const SizedBox(height: 100),
         Lottie.asset('assets/jsons/animation.json'),
         Text(
           'No notes available',

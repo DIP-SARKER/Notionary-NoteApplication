@@ -16,10 +16,11 @@ class NotesController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateNote(int index, Note newNote) {
-    if (index >= 0 && index < _notes.length) {
-      _notes[index] = newNote;
-      notifyListeners();
-    }
+  void updateNote(Note newNote) {
+    final index = _notes.indexWhere(
+      (note) => note.createdAt == newNote.createdAt,
+    );
+    _notes[index] = newNote;
+    notifyListeners();
   }
 }

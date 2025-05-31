@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:iconsax/iconsax.dart';
-import 'package:intl/intl.dart';
 import 'package:notes/controllers/newnotescontroller.dart';
+import 'package:notes/view/widgets/dateinfo.dart';
 import 'package:notes/view/widgets/notestoolbar.dart';
 import 'package:provider/provider.dart';
 
@@ -22,6 +22,7 @@ class Createoreditpage extends StatefulWidget {
 class _CreateoreditpageState extends State<Createoreditpage> {
   late quill.QuillController _controller = quill.QuillController.basic();
   late final NewNoteController newNoteController;
+  late final TextEditingController _titleController;
   final FocusNode _editorFocusNode = FocusNode();
 
   Map<String, Color> colorMap = {
@@ -34,11 +35,17 @@ class _CreateoreditpageState extends State<Createoreditpage> {
   @override
   void initState() {
     super.initState();
+
     newNoteController = context.read<NewNoteController>();
-    _controller =
-        quill.QuillController.basic()..addListener(() {
-          newNoteController.content = _controller.document;
-        });
+
+    _controller = quill.QuillController(
+      document: widget.isNewNote ? quill.Document() : newNoteController.content,
+      selection: const TextSelection.collapsed(offset: 0),
+    )..addListener(() {
+      newNoteController.content = _controller.document;
+    });
+
+    _titleController = TextEditingController(text: newNoteController.title);
     _controller.readOnly = widget.readOnly;
   }
 
@@ -46,14 +53,8 @@ class _CreateoreditpageState extends State<Createoreditpage> {
   void dispose() {
     _controller.dispose();
     _editorFocusNode.dispose();
+    _titleController.dispose();
     super.dispose();
-  }
-
-  String formatDateTime([DateTime? dateTime]) {
-    DateTime dt = (dateTime ?? DateTime.now()).toLocal();
-    return DateFormat(
-      'MMM dd, yyyy – hh:mm a',
-    ).format(DateTime.parse(dt.toIso8601String()));
   }
 
   @override
@@ -61,7 +62,11 @@ class _CreateoreditpageState extends State<Createoreditpage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.isNewNote ? 'Create Note' : 'Edit Note',
+          _controller.readOnly
+              ? 'View Note'
+              : widget.isNewNote
+              ? 'Create Note'
+              : 'Edit Note',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -69,6 +74,17 @@ class _CreateoreditpageState extends State<Createoreditpage> {
           ),
         ),
         centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Iconsax.arrow_left),
+          onPressed: () {
+            confirmExit(
+              context,
+              'Confirm Exit',
+              'Unsaved changes will be lost. Do you want to exit?',
+              () => Navigator.of(context).popUntil((route) => route.isFirst),
+            );
+          },
+        ),
         actions: [
           IconButton(
             icon:
@@ -105,6 +121,7 @@ class _CreateoreditpageState extends State<Createoreditpage> {
             child: Column(
               children: [
                 TextField(
+                  controller: _titleController,
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -112,7 +129,7 @@ class _CreateoreditpageState extends State<Createoreditpage> {
                   canRequestFocus: !_controller.readOnly,
                   decoration: InputDecoration(
                     hintText: 'Title',
-                    hintStyle: TextStyle(color: Colors.grey[600]),
+                    hintStyle: TextStyle(color: Colors.grey[500]),
                     border: InputBorder.none,
                     fillColor: Colors.transparent,
                   ),
@@ -122,72 +139,13 @@ class _CreateoreditpageState extends State<Createoreditpage> {
                 ),
                 const Divider(),
                 if (!widget.isNewNote)
-                  Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 5,
-                              child: Text(
-                                "Last Modified",
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 5,
-                              child: Text(
-                                formatDateTime(),
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 5,
-                              child: Text(
-                                "Created On",
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 5,
-                              child: Text(
-                                formatDateTime(
-                                  DateTime.now().subtract(
-                                    const Duration(
-                                      days: 5,
-                                      hours: 3,
-                                      minutes: 27,
-                                    ),
-                                  ),
-                                ),
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                  DateInformation(note: newNotesController.note),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12.0),
                   child: Row(
                     children: [
                       Expanded(
-                        flex: 5,
+                        flex: 4,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -199,14 +157,19 @@ class _CreateoreditpageState extends State<Createoreditpage> {
                               ),
                             ),
                             SizedBox(width: 4),
-                            IconButton(
-                              onPressed: () {
-                                catagorySelection(context, newNotesController);
-                              },
-                              icon: Icon(Iconsax.add_square, size: 16),
-                              padding: EdgeInsets.zero,
-                              constraints: BoxConstraints(),
-                            ),
+                            !_controller.readOnly
+                                ? IconButton(
+                                  onPressed: () {
+                                    catagorySelection(
+                                      context,
+                                      newNotesController,
+                                    );
+                                  },
+                                  icon: Icon(Iconsax.add_square, size: 16),
+                                  padding: EdgeInsets.zero,
+                                  constraints: BoxConstraints(),
+                                )
+                                : const SizedBox.shrink(),
                           ],
                         ),
                       ),
@@ -254,6 +217,30 @@ class _CreateoreditpageState extends State<Createoreditpage> {
           );
         },
       ),
+    );
+  }
+
+  Future<dynamic> confirmExit(
+    BuildContext context,
+    String title,
+    String content,
+    onTap,
+  ) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(content),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(onPressed: onTap, child: const Text('OK')),
+          ],
+        );
+      },
     );
   }
 
