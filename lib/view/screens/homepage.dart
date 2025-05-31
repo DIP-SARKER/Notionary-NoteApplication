@@ -1,15 +1,17 @@
 // ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:lottie/lottie.dart';
 import 'package:notes/controllers/newnotescontroller.dart';
 import 'package:notes/controllers/notescontroller.dart';
 import 'package:notes/models/notesmodel.dart';
+import 'package:notes/utilities/catagoriesoption.dart';
+import 'package:notes/utilities/colors.dart';
 import 'package:notes/utilities/dateformator.dart';
 import 'package:notes/view/screens/createoreditpage.dart';
 import 'package:notes/view/widgets/floatinbutton.dart';
+import 'package:notes/view/widgets/no_notes_view.dart';
 import 'package:notes/view/widgets/notesdrawer.dart';
+import 'package:notes/view/widgets/search_box.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -20,20 +22,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedCategory = 0;
-  final List<String> _categories = [
-    'All',
-    'Personal',
-    'Work',
-    'Ideas',
-    'To-Do',
-  ];
-  Map<String, Color> colorMap = {
-    'Personal': Colors.green.shade300,
-    'Work': Colors.blue.shade400,
-    'Ideas': Colors.teal.shade300,
-    'To-Do': Colors.amber.shade700,
-  };
+  int selectedCategory = 0;
+  bool isFilterApplied = true;
 
   @override
   Widget build(BuildContext context) {
@@ -41,18 +31,42 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text(
           'Notionary',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
+          style: TextStyle(fontSize: 28, fontWeight: FontWeight.w500),
         ),
         centerTitle: true,
+        actions: [
+          selectedCategory == 0
+              ? IconButton(
+                icon: const Icon(Iconsax.filter),
+                onPressed:
+                    () => setState(() {
+                      isFilterApplied = !isFilterApplied;
+                    }),
+              )
+              : const SizedBox.shrink(),
+          const SizedBox(width: 2),
+        ],
       ),
       drawer: NotesDrawer(),
       body: Consumer<NotesController>(
         builder: (BuildContext context, NotesController value, child) {
           final List<Note> notes = value.notes;
+          // Compute filteredNotes dynamically
+          final List<Note> filteredNotes =
+              selectedCategory == 0
+                  ? (isFilterApplied
+                      ? (notes
+                        ..sort((a, b) => b.modifiedAt.compareTo(a.modifiedAt)))
+                      : (notes
+                        ..sort((b, a) => b.createdAt.compareTo(a.createdAt))))
+                  : notes
+                      .where(
+                        (note) =>
+                            note.category ==
+                            Catagories().categories[selectedCategory],
+                      )
+                      .toList();
+
           return notes.isEmpty
               ? NoNotes()
               : Padding(
@@ -64,52 +78,20 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Search Bar
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Iconsax.search_normal,
-                            color: Colors.black,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: TextField(
-                              decoration: InputDecoration(
-                                fillColor: Colors.grey[200],
-                                hintStyle: TextStyle(color: Colors.grey[600]),
-                                hintText: 'Search notes...',
-                                border: InputBorder.none,
-                              ),
-                              onChanged: (value) {
-                                // Implement search functionality
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
+                    SearchBox(),
                     const SizedBox(height: 24),
-
-                    // Categories
                     SizedBox(
                       height: 40,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
-                        itemCount: _categories.length,
+                        itemCount: Catagories().categories.length,
                         itemBuilder: (context, index) {
                           return Padding(
                             padding: const EdgeInsets.only(right: 16),
                             child: GestureDetector(
                               onTap: () {
                                 setState(() {
-                                  _selectedCategory = index;
+                                  selectedCategory = index;
                                 });
                               },
                               child: Container(
@@ -119,16 +101,16 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 decoration: BoxDecoration(
                                   color:
-                                      _selectedCategory == index
+                                      selectedCategory == index
                                           ? Theme.of(context).primaryColor
                                           : Colors.grey[200],
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 child: Text(
-                                  _categories[index],
+                                  Catagories().categories[index],
                                   style: TextStyle(
                                     color:
-                                        _selectedCategory == index
+                                        selectedCategory == index
                                             ? Colors.white
                                             : Colors.black,
                                     fontWeight: FontWeight.w500,
@@ -140,10 +122,7 @@ class _HomePageState extends State<HomePage> {
                         },
                       ),
                     ),
-
                     const SizedBox(height: 24),
-
-                    // Notes Grid
                     Expanded(
                       child: GridView.builder(
                         gridDelegate:
@@ -153,7 +132,7 @@ class _HomePageState extends State<HomePage> {
                               crossAxisSpacing: 16,
                               childAspectRatio: 0.8,
                             ),
-                        itemCount: notes.length,
+                        itemCount: filteredNotes.length,
                         itemBuilder: (context, index) {
                           return GestureDetector(
                             onTap: () {
@@ -165,7 +144,7 @@ class _HomePageState extends State<HomePage> {
                                         create:
                                             (BuildContext context) =>
                                                 NewNoteController()
-                                                  ..note = notes[index],
+                                                  ..note = filteredNotes[index],
                                         child: const Createoreditpage(
                                           isNewNote: false,
                                           readOnly: true,
@@ -174,7 +153,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               );
                             },
-                            child: _buildNoteCard(notes[index]),
+                            child: _buildNoteCard(filteredNotes[index]),
                           );
                         },
                       ),
@@ -207,7 +186,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildNoteCard(Note note) {
     return Container(
       decoration: BoxDecoration(
-        color: colorMap[note.category] ?? Colors.grey[300],
+        color: AppColors().colorMap[note.category] ?? Colors.grey[300],
         borderRadius: BorderRadius.circular(20),
       ),
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 10),
@@ -340,24 +319,6 @@ class _HomePageState extends State<HomePage> {
           ),
         );
       },
-    );
-  }
-}
-
-class NoNotes extends StatelessWidget {
-  const NoNotes({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const SizedBox(height: 100),
-        Lottie.asset('assets/jsons/animation.json'),
-        Text(
-          'No notes available',
-          style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-        ),
-      ],
     );
   }
 }

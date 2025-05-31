@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:iconsax/iconsax.dart';
 import 'package:notes/controllers/newnotescontroller.dart';
+import 'package:notes/utilities/colors.dart';
 import 'package:notes/view/widgets/dateinfo.dart';
 import 'package:notes/view/widgets/notestoolbar.dart';
 import 'package:provider/provider.dart';
@@ -24,13 +25,6 @@ class _CreateoreditpageState extends State<Createoreditpage> {
   late final NewNoteController newNoteController;
   late final TextEditingController _titleController;
   final FocusNode _editorFocusNode = FocusNode();
-
-  Map<String, Color> colorMap = {
-    'Personal': Colors.green.shade300,
-    'Work': Colors.blue.shade400,
-    'Ideas': Colors.teal.shade300,
-    'To-Do': Colors.amber.shade700,
-  };
 
   @override
   void initState() {
@@ -67,11 +61,7 @@ class _CreateoreditpageState extends State<Createoreditpage> {
               : widget.isNewNote
               ? 'Create Note'
               : 'Edit Note',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
+          style: TextStyle(fontSize: 28, fontWeight: FontWeight.w500),
         ),
         centerTitle: true,
         leading: IconButton(
@@ -182,7 +172,8 @@ class _CreateoreditpageState extends State<Createoreditpage> {
                           style: TextStyle(
                             fontSize: 16,
                             color:
-                                colorMap[newNotesController.category] ??
+                                AppColors().colorMap[newNotesController
+                                    .category] ??
                                 Colors.black,
                           ),
                         ),
