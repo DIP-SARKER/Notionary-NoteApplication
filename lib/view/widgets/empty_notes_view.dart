@@ -8,7 +8,7 @@ class NoNotes extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const SizedBox(height: 100),
+        const SizedBox(height: 30),
         Lottie.asset('assets/jsons/animation.json'),
         Text(
           'No notes available',

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:notes/controllers/notescontroller.dart';
+import 'package:provider/provider.dart';
 
 class SearchBox extends StatelessWidget {
   const SearchBox({super.key});
@@ -25,7 +27,7 @@ class SearchBox extends StatelessWidget {
                 border: InputBorder.none,
               ),
               onChanged: (value) {
-                // Implement search functionality
+                context.read<NotesController>().searchNote = value;
               },
             ),
           ),

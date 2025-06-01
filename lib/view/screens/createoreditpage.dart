@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:iconsax/iconsax.dart';
 import 'package:notes/controllers/newnotescontroller.dart';
-import 'package:notes/utilities/colors.dart';
-import 'package:notes/view/widgets/dateinfo.dart';
+import 'package:notes/view/widgets/category_row.dart';
+import 'package:notes/view/widgets/confirmatio_widget.dart';
+import 'package:notes/view/widgets/dateinforow.dart';
+import 'package:notes/view/widgets/notes_editor.dart';
 import 'package:notes/view/widgets/notestoolbar.dart';
 import 'package:provider/provider.dart';
 
@@ -67,11 +69,13 @@ class _CreateoreditpageState extends State<Createoreditpage> {
         leading: IconButton(
           icon: const Icon(Iconsax.arrow_left),
           onPressed: () {
-            confirmExit(
-              context,
-              'Confirm Exit',
-              'Unsaved changes will be lost. Do you want to exit?',
-              () => Navigator.of(context).popUntil((route) => route.isFirst),
+            ConfirmExitDialog.show(
+              context: context,
+              title: 'Confirm Exit',
+              content: 'Unsaved changes will be lost. Do you want to exit?',
+              onConfirm: () {
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              },
             );
           },
         ),
@@ -130,172 +134,23 @@ class _CreateoreditpageState extends State<Createoreditpage> {
                 const Divider(),
                 if (!widget.isNewNote)
                   DateInformation(note: newNotesController.note),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 4,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              "Category",
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                            SizedBox(width: 4),
-                            !_controller.readOnly
-                                ? IconButton(
-                                  onPressed: () {
-                                    catagorySelection(
-                                      context,
-                                      newNotesController,
-                                    );
-                                  },
-                                  icon: Icon(Iconsax.add_square, size: 16),
-                                  padding: EdgeInsets.zero,
-                                  constraints: BoxConstraints(),
-                                )
-                                : const SizedBox.shrink(),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        flex: 5,
-                        child: Text(
-                          newNotesController.category.isNotEmpty
-                              ? newNotesController.category
-                              : 'Not Selected',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color:
-                                AppColors().colorMap[newNotesController
-                                    .category] ??
-                                Colors.black,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                CategoryRow(
+                  isReadOnly: _controller.readOnly,
+                  controller: newNotesController,
+                  onCategorySelected: () => setState(() {}),
                 ),
                 if (!_controller.readOnly)
                   NotesToolBar(controller: _controller),
                 const Divider(thickness: 1, color: Colors.grey),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                    child: Theme(
-                      data: Theme.of(context).copyWith(
-                        textSelectionTheme: TextSelectionThemeData(
-                          cursorColor: Colors.black,
-                        ),
-                      ),
-                      child: quill.QuillEditor.basic(
-                        controller: _controller,
-                        focusNode: _editorFocusNode,
-                        config: const quill.QuillEditorConfig(
-                          placeholder: 'Start writing your note...',
-                        ),
-                      ),
-                    ),
-                  ),
+                NotesEditor(
+                  controller: _controller,
+                  editorFocusNode: _editorFocusNode,
                 ),
               ],
             ),
           );
         },
       ),
-    );
-  }
-
-  Future<dynamic> confirmExit(
-    BuildContext context,
-    String title,
-    String content,
-    onTap,
-  ) {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(content),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            ),
-            TextButton(onPressed: onTap, child: const Text('OK')),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<dynamic> catagorySelection(
-    BuildContext context,
-    NewNoteController newNotesController,
-  ) {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Select Category'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: Text(
-                  'Personal',
-                  style: TextStyle(color: Colors.green.shade300),
-                ),
-                onTap: () {
-                  // Set category to Personal
-                  newNotesController.category = 'Personal';
-                  Navigator.of(context).pop();
-                  setState(() {});
-                },
-              ),
-              ListTile(
-                title: Text(
-                  'Work',
-                  style: TextStyle(color: Colors.blue.shade400),
-                ),
-                onTap: () {
-                  newNotesController.category = 'Work';
-                  Navigator.of(context).pop();
-                  setState(() {});
-                },
-              ),
-              ListTile(
-                title: Text(
-                  'Ideas',
-                  style: TextStyle(color: Colors.teal.shade300),
-                ),
-                onTap: () {
-                  newNotesController.category = 'Ideas';
-                  Navigator.of(context).pop();
-                  setState(() {});
-                },
-              ),
-              ListTile(
-                title: Text(
-                  'To-Do',
-                  style: TextStyle(color: Colors.amber.shade700),
-                ),
-                onTap: () {
-                  newNotesController.category = 'To-Do';
-                  Navigator.of(context).pop();
-                  setState(() {});
-                },
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 }
