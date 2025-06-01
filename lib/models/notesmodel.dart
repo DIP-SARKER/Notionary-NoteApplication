@@ -14,4 +14,26 @@ class Note {
     required this.modifiedAt,
     required this.category,
   });
+
+  factory Note.fromJson(Map<String, dynamic> json) {
+    return Note(
+      title: json['title'],
+      content: json['content'],
+      text: json['text'],
+      createdAt: json['createdAt'],
+      modifiedAt: json['modifiedAt'],
+      category: json['category'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'content': content,
+      'text': text,
+      'createdAt': createdAt,
+      'modifiedAt': modifiedAt,
+      'category': category,
+    };
+  }
 }

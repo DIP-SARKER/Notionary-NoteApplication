@@ -31,6 +31,8 @@ class _NoteCardGridState extends State<NoteCardGrid> {
         ),
         itemCount: widget.filteredNotes.length,
         itemBuilder: (context, index) {
+          final note = widget.filteredNotes[index];
+
           return GestureDetector(
             onTap: () {
               Navigator.push(
@@ -38,10 +40,7 @@ class _NoteCardGridState extends State<NoteCardGrid> {
                 MaterialPageRoute(
                   builder:
                       (context) => ChangeNotifierProvider(
-                        create:
-                            (BuildContext context) =>
-                                NewNoteController()
-                                  ..note = widget.filteredNotes[index],
+                        create: (_) => NewNoteController()..note = note,
                         child: const Createoreditpage(
                           isNewNote: false,
                           readOnly: true,
@@ -50,94 +49,117 @@ class _NoteCardGridState extends State<NoteCardGrid> {
                 ),
               );
             },
-            child: Container(
-              decoration: BoxDecoration(
-                color:
-                    AppColors().colorMap[widget
-                        .filteredNotes[index]
-                        .category] ??
-                    Colors.grey[300],
-                borderRadius: BorderRadius.circular(20),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
+            child: Stack(
+              children: [
+                // Note card container
+                Container(
+                  decoration: BoxDecoration(
+                    color:
+                        AppColors().colorMap[note.category] ?? Colors.grey[300],
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: const EdgeInsets.fromLTRB(
+                    10,
+                    26,
+                    10,
+                    16,
+                  ), // top padding for spiral
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        flex: 5,
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 3,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 7,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.7),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    widget.filteredNotes[index].category,
-                                    style: const TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 5,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 3,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 7,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.7),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        note.category,
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
+                                const Expanded(flex: 2, child: SizedBox()),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: IconButton(
+                              onPressed:
+                                  () => NoteViewOptions.show(context, note),
+                              padding: EdgeInsets.zero,
+                              icon: const Icon(
+                                Iconsax.more,
+                                size: 20,
+                                color: Colors.black,
                               ),
                             ),
-                            const Expanded(flex: 2, child: SizedBox()),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: IconButton(
-                          onPressed:
-                              () => NoteViewOptions.show(
-                                context,
-                                widget.filteredNotes[index],
-                              ),
-                          padding: EdgeInsets.zero,
-                          icon: const Icon(
-                            Iconsax.more,
-                            size: 20,
-                            color: Colors.black,
                           ),
+                        ],
+                      ),
+                      Text(
+                        note.title,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        note.text,
+                        style: TextStyle(fontSize: 15, color: Colors.grey[900]),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const Spacer(),
+                      Text(
+                        formatDateTime(note.createdAt),
+                        style: TextStyle(fontSize: 12, color: Colors.grey[700]),
                       ),
                     ],
                   ),
-                  Text(
-                    widget.filteredNotes[index].title,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                ),
+
+                // Spiral holes (top decoration)
+                Positioned(
+                  top: 10,
+                  left: 0,
+                  right: 0,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: List.generate(5, (i) {
+                      return Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[600],
+                          shape: BoxShape.circle,
+                        ),
+                      );
+                    }),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    widget.filteredNotes[index].text,
-                    style: TextStyle(fontSize: 15, color: Colors.grey[900]),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const Spacer(),
-                  Text(
-                    formatDateTime(widget.filteredNotes[index].createdAt),
-                    style: TextStyle(fontSize: 12, color: Colors.grey[700]),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           );
         },

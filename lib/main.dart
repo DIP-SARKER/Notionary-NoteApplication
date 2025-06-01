@@ -6,6 +6,10 @@ import 'package:notes/utilities/themes.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 //android-arm64
+//flutter build apk --release --target-platform=android-arm64
+//build/app/outputs/flutter-apk/app-release.apk
+
+
 
 void main() {
   runApp(

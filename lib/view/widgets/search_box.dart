@@ -25,6 +25,19 @@ class SearchBox extends StatelessWidget {
                 hintStyle: TextStyle(color: Colors.grey[600]),
                 hintText: 'Search notes...',
                 border: InputBorder.none,
+
+                // suffixIcon:
+                //     context.watch<NotesController>().searchNote.isNotEmpty
+                //         ? IconButton(
+                //           icon: const Icon(
+                //             Icons.close,
+                //             color: Colors.black,
+                //           ),
+                //           onPressed: () {
+                //             context.read<NotesController>().searchNote = '';
+                //           },
+                //         )
+                //         : null,
               ),
               onChanged: (value) {
                 context.read<NotesController>().searchNote = value;

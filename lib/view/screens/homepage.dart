@@ -1,6 +1,3 @@
-//flutter build apk --release --target-platform=android-arm64
-//build/app/outputs/flutter-apk/app-release.apk
-
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:notes/controllers/newnotescontroller.dart';

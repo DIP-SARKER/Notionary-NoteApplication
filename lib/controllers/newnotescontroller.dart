@@ -88,5 +88,7 @@ class NewNoteController extends ChangeNotifier {
     isNewNote
         ? notesController.addNote(note)
         : notesController.updateNote(note);
+
+    notesController.saveNoteToFile(note);
   }
 }
