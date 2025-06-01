@@ -3,7 +3,7 @@ import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:iconsax/iconsax.dart';
 import 'package:notes/controllers/newnotescontroller.dart';
 import 'package:notes/view/widgets/category_row.dart';
-import 'package:notes/view/widgets/confirmatio_widget.dart';
+import 'package:notes/view/widgets/confirmation_widget.dart';
 import 'package:notes/view/widgets/dateinforow.dart';
 import 'package:notes/view/widgets/notes_editor.dart';
 import 'package:notes/view/widgets/notestoolbar.dart';

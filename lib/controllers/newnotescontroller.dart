@@ -89,6 +89,7 @@ class NewNoteController extends ChangeNotifier {
         ? notesController.addNote(note)
         : notesController.updateNote(note);
 
+    notesController.requestStoragePermission();
     notesController.saveNoteToFile(note);
   }
 }

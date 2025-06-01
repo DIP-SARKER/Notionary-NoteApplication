@@ -9,8 +9,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 //flutter build apk --release --target-platform=android-arm64
 //build/app/outputs/flutter-apk/app-release.apk
 
-
-
 void main() {
   runApp(
     ChangeNotifierProvider(

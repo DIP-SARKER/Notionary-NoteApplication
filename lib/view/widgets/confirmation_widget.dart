@@ -31,3 +31,36 @@ class ConfirmExitDialog {
     );
   }
 }
+
+class ConfirmationWidget extends StatelessWidget {
+  final String title;
+  final String message;
+  final String confirmText;
+  final String cancelText;
+
+  const ConfirmationWidget({
+    super.key,
+    required this.title,
+    required this.message,
+    this.confirmText = 'Yes',
+    this.cancelText = 'No',
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(title),
+      content: Text(message),
+      actions: [
+        TextButton(
+          child: Text(cancelText),
+          onPressed: () => Navigator.pop(context, false),
+        ),
+        TextButton(
+          child: Text(confirmText, style: const TextStyle(color: Colors.red)),
+          onPressed: () => Navigator.pop(context, true),
+        ),
+      ],
+    );
+  }
+}

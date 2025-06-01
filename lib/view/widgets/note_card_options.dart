@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:notes/view/widgets/confirmation_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:notes/controllers/newnotescontroller.dart';
 import 'package:notes/controllers/notescontroller.dart';
@@ -59,12 +60,27 @@ class NoteViewOptions extends StatelessWidget {
           ListTile(
             leading: const Icon(Iconsax.trash),
             title: const Text('Delete'),
-            onTap: () {
-              Provider.of<NotesController>(
-                context,
-                listen: false,
-              ).removeNote(note);
-              Navigator.pop(context);
+            onTap: () async {
+              final bool? confirmed = await showDialog<bool>(
+                context: context,
+                builder:
+                    (_) => ConfirmationWidget(
+                      title: 'Delete Note',
+                      message: 'Are you sure you want to delete this note?',
+                      confirmText: 'Delete',
+                      cancelText: 'Cancel',
+                    ),
+              );
+
+              if (confirmed == true) {
+                final notesController = Provider.of<NotesController>(
+                  context,
+                  listen: false,
+                );
+                Navigator.pop(context);
+                notesController.deleteNoteFile(note);
+                notesController.removeNote(note);
+              }
             },
           ),
         ],
